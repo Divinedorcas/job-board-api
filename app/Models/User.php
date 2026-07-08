@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'company_id'
     ];
 
     /**
@@ -50,7 +51,9 @@ class User extends Authenticatable
     }
 
     public function company()
-    {
-        return $this->hasOne(Company::class);
-    }
+{
+    return $this->hasOne(Company::class);
 }
+
+}
+
