@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobController;
+use App\Http\Middleware\EmployerMiddleware;
 
 
 Route::apiResource('companies', CompanyController::class);
@@ -28,13 +29,16 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'userLogOut']);
-    Route::post('/createjob', [JobController::class, 'createJob']);
     Route::get('/jobs', [JobController::class, 'index']);
     Route::get('/jobs/{id}', [JobController::class, 'showOneJob']);
     Route::put('/jobs/{id}', [JobController::class, 'updateJob']);
     Route::delete('/jobs/{id}', [JobController::class, 'deleteJob']);
-    route::post('/createcompany', [CompanyController::class, 'createCompany']);
+   
 });
 
+Route::middleware(['auth:sanctum', 'employer'])->group(function () {
+ route::post('/createcompany', [CompanyController::class, 'createCompany']);
+ Route::post('/createjob', [JobController::class, 'createJob']);
 
+});
 //Route::prefix('auth')->group(function (){})

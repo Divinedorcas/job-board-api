@@ -1,19 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Services;
 
 use Illuminate\Http\Request;
 use App\Models\JobListings;
 use App\Http\Requests\CreateJobRequest;
-use App\Services\JobService;
 
 
-class JobController extends Controller
+class JobService
 {
-public function __construct(
-    protected JobService $jobService
-){}
-
+    
     //get all jobs
     public function index(){
         $allJobs= JobListings::all();
@@ -23,27 +19,31 @@ public function __construct(
             'jobs' => $allJobs
         ], 200);
     }
+
     //create a new job
     public function createJob(CreateJobRequest $request)
 {
-    
-    $job = $this->jobService->createJob($request);
+    $user = $request->user();
+    // $company = $request->company();
 
-    return response()->json([
-        'message' => 'Job created successfully',
-        'job' => $job
-    ], 201);
+    $job = JobListings::create([
+        ...$request->validated(),
+        'company_id' => $user->company_id,
+        'created_by' => $user->id,
+    ]);
+
+    return $job;
 }
 //show one job
     public function showOneJob($id){
-    
-    $oneJob = JobListings::find($id);
+$oneJob = JobListings::find($id);
 
         if (!$oneJob) {
             return response()->json([
                 'message' => 'Job not found'
             ], 404);
         }
+
         return response()->json([
             'message' => 'Job details',
             'job' => $oneJob
@@ -78,7 +78,6 @@ public function __construct(
                 'message' => 'Job not found'
             ], 404);
         }
-
         $deleteJob->delete();
 
         return response()->json([
