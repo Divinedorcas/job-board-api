@@ -13,7 +13,7 @@ use App\Http\Requests\LoginUserRequest;
 
 class AuthService
 {
-   public function userRegister(RegisterUserRequest $request):User
+   public function userRegister(RegisterUserRequest $request): array
     {
         $validatedData = $request->validated();
 
@@ -24,7 +24,12 @@ class AuthService
             'role' => $validatedData['role'],
         ]);
 
-        return $user;
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
     }
 
 public function userLogin(LoginUserRequest $request)

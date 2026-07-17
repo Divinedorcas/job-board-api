@@ -25,12 +25,16 @@ class CreateJobRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'work_mode' => ['required', 'in:remote,on-site,hybrid'],
             'experience_level' => ['required', 'in:entry,mid,senior'],
             'location' => ['required', 'string', 'max:255'],
             'job_type' => ['required', 'in:full-time,part-time,contract,internship'],
             'salary' => ['nullable' , 'string', 'max:255'],
+            'requirements' => ['nullable', 'string'],
+            'responsibilities' => ['nullable', 'string'],
+            'benefits' => ['nullable', 'string'],
             'application_deadline' => ['nullable', 'date'],
             'status' => ['required', 'in:open,closed'],
         ];

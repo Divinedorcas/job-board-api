@@ -11,12 +11,16 @@ class JobListings extends Model
         'company_id',
         'created_by',
         'title',
+        'category',
         'description',
         'location',
         'work_mode',
         'job_type',
         'experience_level',
         'salary',
+        'requirements',
+        'responsibilities',
+        'benefits',
         'application_deadline',
         'status'
     ];

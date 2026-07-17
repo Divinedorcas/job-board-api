@@ -10,7 +10,11 @@ use App\Http\Middleware\EmployerMiddleware;
 
 Route::apiResource('companies', CompanyController::class);
 
-
+Route::get('/test', function () {
+    return response()->json([
+        'message' => 'Laravel is connected!'
+    ]);
+});
 
 Route::get('/user', function (Request $request) {
     return $request->user();
