@@ -25,12 +25,18 @@ class CreateCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:companies,email'],
             'website' => ['nullable', 'url'],
             'description' => ['required', 'string'],
-            'logo' => ['nullable', 'string'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
             'location' => ['required', 'string'],
+            'cover' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
+            'industry' => ['nullable', 'string'],
+            'size' => ['nullable', 'string'],
+            'about' => ['nullable', 'string'],
+            'founded' => ['nullable', 'string'],
+            'employees' => ['nullable', 'array'],
         ];
     }
 }

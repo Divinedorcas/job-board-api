@@ -24,8 +24,17 @@ class JobListings extends Model
         'application_deadline',
         'status'
     ];
-public function creator()
-{
-    return $this->belongsTo(User::class, 'company_id', 'created_by');
-}
+
+    /**
+     * The company that posted this job listing.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -15,9 +15,14 @@ public function __construct(
         private CompanyService $companyService
         
     ) {}
+
+    //Create Company
+
     public function index()
     {
-        return Company::all();
+        return response()->json([
+            'companies' => Company::with('jobs')->get()
+        ]);
     }
 
     public function createCompany(CreateCompanyRequest $request)
@@ -33,21 +38,36 @@ public function __construct(
         'company' => $result['company'],
     ], );
 }
-    
-    public function show(string $id)
+
+    //View Company
+    public function show( $id)
     {
-        //
+        $company = Company::with('jobs')->findOrFail($id);
+        return response()->json([
+            'company' => $company,
+        ], );
     }
 
-    
-    public function update(Request $request, string $id)
+    //Update Company
+    public function update(Request $request, $id)
     {
-        //
+        $upcompany = Company::find($id);
+            if(!$upcompany){
+
+            return "Company Not Found";
+        }
     }
 
-    
-    public function destroy(string $id)
+    //Delete Company
+    public function destroy( $id)
     {
-        //
+        $decompany = Company::find($id);
+        if(!$decompany){
+            return "Company Not Found";
+        }
+        $decompany->delete();
     }
+
+
+    //Company Profile
 }

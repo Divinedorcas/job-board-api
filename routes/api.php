@@ -24,6 +24,9 @@ Route::get('/user', function (Request $request) {
 //puplic access
 Route::post('/register', [AuthController::class, 'userRegister']);
 Route::post('/login', [AuthController::class, 'userLogin']);
+Route::get('/company', [CompanyController::class, 'index']);
+Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/{id}', [JobController::class, 'showOneJob']);
 
 //protected access
 Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
@@ -33,16 +36,18 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'userLogOut']);
-    Route::get('/jobs', [JobController::class, 'index']);
-    Route::get('/jobs/{id}', [JobController::class, 'showOneJob']);
-    Route::put('/jobs/{id}', [JobController::class, 'updateJob']);
-    Route::delete('/jobs/{id}', [JobController::class, 'deleteJob']);
+   
+   
    
 });
 
 Route::middleware(['auth:sanctum', 'employer'])->group(function () {
  route::post('/createcompany', [CompanyController::class, 'createCompany']);
  Route::post('/createjob', [JobController::class, 'createJob']);
+ 
+    Route::put('/jobs/{id}', [JobController::class, 'updateJob']);
+    Route::delete('/jobs/{id}', [JobController::class, 'deleteJob']);
+ 
 
 });
 //Route::prefix('auth')->group(function (){})

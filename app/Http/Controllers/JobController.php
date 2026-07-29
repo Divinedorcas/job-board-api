@@ -16,7 +16,9 @@ public function __construct(
 
     //get all jobs
     public function index(){
-        $allJobs= JobListings::all();
+        // Eager-load the related company so the frontend receives company
+        // name and logo alongside each job without a separate API call.
+        $allJobs = JobListings::with('company')->get();
 
         return response()->json([
             'message' => 'All Jobs',
@@ -34,10 +36,10 @@ public function __construct(
         'job' => $job
     ], 201);
 }
-//show one job
+    //show one job
     public function showOneJob($id){
-    
-    $oneJob = JobListings::find($id);
+
+        $oneJob = JobListings::with('company')->find($id);
 
         if (!$oneJob) {
             return response()->json([

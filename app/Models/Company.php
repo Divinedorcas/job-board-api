@@ -13,17 +13,33 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     protected $fillable = [
-       'owner_id',
-    'name',
-    'email',
-    'website',
-    'description',
-    'logo',
-    'location',
-];
+        'owner_id',
+        'name',
+        'email',
+        'website',
+        'description',
+        'logo',
+        'location',
+        'cover',
+        'industry',
+        'size',
+        'about',
+        'founded',
+        'employees',
+    ];
+
+    protected $casts = [
+        'employees' => 'array',
+    ];
 
     public function owner()
-{
-    return $this->belongsTo(User::class, 'owner_id');
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function jobs()
+    {
+        return $this->hasMany(JobListings::class, 'company_id');
+    }
 }
-}
+

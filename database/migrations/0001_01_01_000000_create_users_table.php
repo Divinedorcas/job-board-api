@@ -18,7 +18,7 @@ return new class extends Migration
           ->nullable()
           ->constrained()
           ->nullOnDelete();
-    // $table->unsignedBigInteger('company_id')->nullable();
+     //$table->unsignedBigInteger('company_id')->nullable();
     $table->string('name');
     $table->string('email')->unique();
     $table->enum('role', ['admin', 'employer', 'job_seeker'])

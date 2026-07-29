@@ -20,6 +20,12 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('logo')->nullable();
             $table->string('location');
+            $table->string('cover')->nullable();
+            $table->string('industry')->nullable();
+            $table->string('size')->nullable();
+            $table->text('about')->nullable();
+            $table->string('founded')->nullable();
+            $table->json('employees')->nullable();
             $table->timestamps();
         });
     }

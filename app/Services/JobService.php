@@ -59,6 +59,12 @@ $oneJob = JobListings::find($id);
                 'message' => 'Job not found'
             ], 404);
         }
+        if ($job->company_id != $request->user()->company_id) {
+    return [
+        'success' => false,
+        'message' => 'Unauthorized.',
+        'status' => 403,
+    ];
 
         $validatedData = $request->validated();
         $updateJob->update($validatedData);
@@ -70,7 +76,7 @@ $oneJob = JobListings::find($id);
     }
 
     //delete a job
-    public function deleteJob($id){
+     function deleteJob($id){
         $deleteJob = JobListings::find($id);
 
         if (!$deleteJob) {
@@ -85,4 +91,5 @@ $oneJob = JobListings::find($id);
         ], 200);
     }
 
+}
 }
