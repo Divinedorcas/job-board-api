@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\JobListings;
 use App\Http\Requests\CreateJobRequest;
 use App\Services\JobService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class JobController extends Controller
@@ -29,7 +31,7 @@ public function __construct(
                   ->orWhere('work_mode', 'like', "%{$searchTerm}%")
                   ->orWhere('job_type', 'like', "%{$searchTerm}%")
                   ->orWhere('experience_level', 'like', "%{$searchTerm}%")
-                  ->orWhere('skills', 'like', "%{$searchTerm}%")
+                 // ->orWhere('skills', 'like', "%{$searchTerm}%")
                   ->orWhereHas('company', function ($companyQuery) use ($searchTerm) {
                       $companyQuery->where('name', 'like', "%{$searchTerm}%");
                   });
@@ -101,6 +103,10 @@ public function __construct(
             ]
         ], 200);
     }
+
+
+
+    
     //create a new job
     public function createJob(CreateJobRequest $request)
 {
