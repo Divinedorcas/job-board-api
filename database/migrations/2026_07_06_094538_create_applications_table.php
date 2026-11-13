@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('job_id')->constrained('joblistings')->cascadeOnDelete();
+            $table->string('resume')->nullable();
+            $table->text('cover_letter')->nullable();
+            $table->enum('status', ['applied', 'reviewed', 'shortlisted', 'interview', 'rejected', 'hired'])->default('applied');
             $table->timestamps();
         });
     }
