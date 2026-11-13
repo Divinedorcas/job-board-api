@@ -6,13 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\JobListings;
 use App\Http\Requests\CreateJobRequest;
 
-
 class JobService
 {
-    
-    //get all jobs
-    public function index(){
-        $allJobs= JobListings::all();
+    // get all jobs
+    public function index()
+    {
+        $allJobs = JobListings::with('company')->latest()->get();
 
         return response()->json([
             'message' => 'All Jobs',
@@ -20,23 +19,24 @@ class JobService
         ], 200);
     }
 
-    //create a new job
+    // create a new job
     public function createJob(CreateJobRequest $request)
-{
-    $user = $request->user();
-    // $company = $request->company();
+    {
+        $user = $request->user();
 
-    $job = JobListings::create([
-        ...$request->validated(),
-        'company_id' => $user->company_id,
-        'created_by' => $user->id,
-    ]);
+        $job = JobListings::create([
+            ...$request->validated(),
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+        ]);
 
-    return $job;
-}
-//show one job
-    public function showOneJob($id){
-$oneJob = JobListings::find($id);
+        return $job;
+    }
+
+    // show one job
+    public function showOneJob($id)
+    {
+        $oneJob = JobListings::with('company')->find($id);
 
         if (!$oneJob) {
             return response()->json([
@@ -50,8 +50,9 @@ $oneJob = JobListings::find($id);
         ], 200);
     }
 
-    //update a job
-    public function updateJob($id, CreateJobRequest $request){
+    // update a job
+    public function updateJob($id, CreateJobRequest $request)
+    {
         $updateJob = JobListings::find($id);
 
         if (!$updateJob) {
@@ -59,12 +60,12 @@ $oneJob = JobListings::find($id);
                 'message' => 'Job not found'
             ], 404);
         }
-        if ($job->company_id != $request->user()->company_id) {
-    return [
-        'success' => false,
-        'message' => 'Unauthorized.',
-        'status' => 403,
-    ];
+
+        if ($updateJob->company_id != $request->user()->company_id) {
+            return response()->json([
+                'message' => 'Unauthorized to update this job listing.'
+            ], 403);
+        }
 
         $validatedData = $request->validated();
         $updateJob->update($validatedData);
@@ -75,8 +76,9 @@ $oneJob = JobListings::find($id);
         ], 200);
     }
 
-    //delete a job
-     function deleteJob($id){
+    // delete a job
+    public function deleteJob($id)
+    {
         $deleteJob = JobListings::find($id);
 
         if (!$deleteJob) {
@@ -84,12 +86,11 @@ $oneJob = JobListings::find($id);
                 'message' => 'Job not found'
             ], 404);
         }
+
         $deleteJob->delete();
 
         return response()->json([
             'message' => 'Job deleted successfully'
         ], 200);
     }
-
-}
 }

@@ -30,4 +30,10 @@ class RegisterUserRequest extends FormRequest
             'role' => ['required', 'in:employer,job_seeker'],
         ];
     }
+
+
+
+
+
+    
 }
