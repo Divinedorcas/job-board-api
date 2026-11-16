@@ -11,16 +11,19 @@ class JobSeekerMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $user = $request->user();
 
-    if ($request->user()->role !== 'job_seeker') {
-    return response()->json([
-        'message' => 'Only job seekers can apply.'
-    ], 403);
-}
+        if (!$user || ($user->role !== 'job_seeker' && $user->role !== 'candidate' && $user->role !== 'admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden. Only registered candidates can apply for jobs or access the candidate dashboard.'
+            ], 403);
+        }
+
         return $next($request);
     }
 }

@@ -5,24 +5,25 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Controllers\AuthController;
-
 
 class EmployerMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next){
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
 
-    if (!$request->user() || $request->user()->role !== 'employer') {
-        return response()->json([
-            'message' => 'Only employers can perform this action.'
-        ], 403);
-    }
+        if (!$user || ($user->role !== 'employer' && $user->role !== 'admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden. Only registered employers can perform this action or access the employer dashboard.'
+            ], 403);
+        }
+
         return $next($request);
     }
 }
-

@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobListings extends Model
-{   protected $table = 'joblistings';
+{
+    use HasFactory;
 
-     protected $fillable = [
+    protected $table = 'joblistings';
+
+    protected $fillable = [
         'company_id',
         'created_by',
         'title',
@@ -36,5 +40,10 @@ class JobListings extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'job_id');
     }
 }

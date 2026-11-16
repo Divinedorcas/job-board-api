@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Relation\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,6 +12,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasApiTokens, Notifiable;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -51,9 +50,27 @@ class User extends Authenticatable
     }
 
     public function company()
-{
-    return $this->hasOne(Company::class);
-}
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
 
-}
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'user_id');
+    }
 
+    public function postedJobs()
+    {
+        return $this->hasMany(JobListings::class, 'created_by');
+    }
+
+    public function isEmployer(): bool
+    {
+        return $this->role === 'employer' || $this->role === 'admin';
+    }
+
+    public function isCandidate(): bool
+    {
+        return $this->role === 'job_seeker' || $this->role === 'candidate' || $this->role === 'admin';
+    }
+}

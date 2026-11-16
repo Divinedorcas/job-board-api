@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EmployerMiddleware;
+use App\Http\Middleware\JobSeekerMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,15 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'employer' => EmployerMiddleware::class,
-    ]);
-})
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'employer' => EmployerMiddleware::class,
+            'job_seeker' => JobSeekerMiddleware::class,
+            'candidate' => JobSeekerMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
-
-
