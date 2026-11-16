@@ -5,15 +5,12 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 
-
 class AuthService
 {
-   public function userRegister(RegisterUserRequest $request): array
+    public function userRegister(RegisterUserRequest $request): array
     {
         $validatedData = $request->validated();
 
@@ -27,36 +24,34 @@ class AuthService
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
-            'user' => $user,
+            'user' => $user->load('company'),
             'token' => $token,
         ];
     }
 
-public function userLogin(LoginUserRequest $request)
-{
+    public function userLogin(LoginUserRequest $request): ?array
+    {
         $credentials = $request->validated();
-    
-    $user = User::where('email', $credentials['email'])->first();
 
-    if (!$user || !Hash::check($credentials['password'], $user->password)) {
-        return response()->json([
-            'message' => 'Invalid credentials.'
-        ], 401);
-    }
-            $token = $user->createToken('auth_token')->plainTextToken;
- return [
-        'user' => $user,
-        'token' => $token,
-    ];
-    }
+        $user = User::where('email', $credentials['email'])->first();
 
-public function  userLogOut(Request $request)
-{
-     $user = $request->user();       
-        $user->currentAccessToken()->delete();
-       
-        return 'message';
-            
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return null;
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return [
+            'user' => $user->load('company'),
+            'token' => $token,
+        ];
     }
 
+    public function userLogOut(Request $request): void
+    {
+        $user = $request->user();
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
+    }
 }
