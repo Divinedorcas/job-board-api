@@ -44,14 +44,20 @@ Route::middleware(['auth:sanctum', 'employer'])->group(function () {
 
     // Job Management (Adding, Editing, Deleting jobs)
     Route::post('/createjob', [JobController::class, 'createJob']);
+    Route::post('/jobs', [JobController::class, 'createJob']); // REST alias
     Route::put('/jobs/{id}', [JobController::class, 'updateJob']);
     Route::delete('/jobs/{id}', [JobController::class, 'deleteJob']);
 
     // Company Management
+    Route::get('/employer/company', [CompanyController::class, 'myCompany']);
     Route::post('/createcompany', [CompanyController::class, 'createCompany']);
+    Route::post('/companies', [CompanyController::class, 'createCompany']); // REST alias
+    Route::put('/companies/{id}', [CompanyController::class, 'update']);
+    Route::delete('/companies/{id}', [CompanyController::class, 'destroy']);
 
     // Review / Update Candidate Applications
     Route::patch('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
+    Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
 });
 
 // 4. CANDIDATE ONLY ROUTES (Must be registered user with role === 'job_seeker' or 'candidate')
