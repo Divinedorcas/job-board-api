@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Http\Controllers\JobController;
 
 class CreateJobRequest extends FormRequest
 {
@@ -19,7 +17,7 @@ class CreateJobRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -31,13 +29,18 @@ class CreateJobRequest extends FormRequest
             'experience_level' => ['required', 'in:entry,mid,senior'],
             'location' => ['required', 'string', 'max:255'],
             'job_type' => ['required', 'in:full-time,part-time,contract,internship'],
-            'salary' => ['nullable' , 'string', 'max:255'],
+            'salary' => ['nullable', 'string', 'max:255'],
             'requirements' => ['nullable', 'string'],
             'responsibilities' => ['nullable', 'string'],
             'benefits' => ['nullable', 'string'],
             'application_deadline' => ['nullable', 'date'],
-            'status' => ['required', 'in:open,closed'],
+            'status' => ['nullable', 'in:open,closed'],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'company_email' => ['nullable', 'email'],
+            'company_website' => ['nullable', 'string'],
+            'company_logo' => ['nullable', 'string'],
+            'company_description' => ['nullable', 'string'],
         ];
     }
 }
-
