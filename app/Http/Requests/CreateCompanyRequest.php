@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Http\Controller\CompanyController;
-
 
 class CreateCompanyRequest extends FormRequest
 {
@@ -20,22 +17,22 @@ class CreateCompanyRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:companies,email'],
-            'website' => ['nullable', 'url'],
+            'website' => ['nullable', 'string', 'max:255'],
             'description' => ['required', 'string'],
-            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
-            'location' => ['required', 'string'],
-            'cover' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
-            'industry' => ['nullable', 'string'],
-            'size' => ['nullable', 'string'],
+            'location' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable'],
+            'cover' => ['nullable'],
+            'industry' => ['nullable', 'string', 'max:255'],
+            'size' => ['nullable', 'string', 'max:255'],
             'about' => ['nullable', 'string'],
-            'founded' => ['nullable', 'string'],
+            'founded' => ['nullable', 'string', 'max:50'],
             'employees' => ['nullable', 'array'],
         ];
     }

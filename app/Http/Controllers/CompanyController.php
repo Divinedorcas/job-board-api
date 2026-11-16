@@ -7,20 +7,18 @@ use App\Models\Company;
 use App\Http\Requests\CreateCompanyRequest;
 use App\Services\CompanyService;
 
-
 class CompanyController extends Controller
 {
-
-public function __construct(
+    public function __construct(
         private CompanyService $companyService
-        
     ) {}
 
-    //Create Company
-
+    /**
+     * Get all companies with search, filters, and pagination.
+     */
     public function index(Request $request)
     {
-        $query = Company::with('jobs');
+        $query = Company::withCount('jobs');
 
         // Search by company name, industry, location, description, or about
         if ($request->filled('search')) {
@@ -69,7 +67,7 @@ public function __construct(
         return response()->json([
             'success' => true,
             'data' => $companies->items(),
-            'companies' => $companies->items(), // backwards compatibility
+            'companies' => $companies->items(),
             'pagination' => [
                 'current_page' => $companies->currentPage(),
                 'last_page' => $companies->lastPage(),
@@ -81,49 +79,158 @@ public function __construct(
         ], 200);
     }
 
+    /**
+     * Get the logged-in employer's company profile.
+     */
+    public function myCompany(Request $request)
+    {
+        $user = $request->user();
+        $company = null;
+
+        if ($user->company_id) {
+            $company = Company::with('jobs')->find($user->company_id);
+        }
+
+        if (!$company) {
+            $company = Company::with('jobs')->where('owner_id', $user->id)->first();
+        }
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No company found for this employer.',
+                'company' => null,
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'company' => $company,
+        ], 200);
+    }
+
+    /**
+     * Create a new company (Employer only).
+     */
     public function createCompany(CreateCompanyRequest $request)
     {
-       $result = $this->companyService->createCompany($request);
- if (!$result['success']) {
+        $result = $this->companyService->createCompany($request);
+
+        if (!$result['success']) {
+            return response()->json([
+                'message' => $result['message'],
+            ], 422);
+        }
+
         return response()->json([
             'message' => $result['message'],
-        ], );
+            'company' => $result['company'],
+            'data' => $result['company'],
+        ], 201);
     }
-    return response()->json([
-        'message' => $result['message'],
-        'company' => $result['company'],
-    ], );
-}
 
-    //View Company
-    public function show( $id)
+    /**
+     * View Company Details with Jobs.
+     */
+    public function show($id)
     {
-        $company = Company::with('jobs')->findOrFail($id);
+        $company = Company::with(['jobs' => function ($q) {
+            $q->where('status', 'open')->latest();
+        }, 'owner'])->find($id);
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company not found.',
+            ], 404);
+        }
+
         return response()->json([
+            'success' => true,
             'company' => $company,
-        ], );
+            'data' => $company,
+        ], 200);
     }
 
-    //Update Company
+    /**
+     * Update Company Profile (Owner or Admin only).
+     */
     public function update(Request $request, $id)
     {
-        $upcompany = Company::find($id);
-            if(!$upcompany){
+        $company = Company::find($id);
 
-            return "Company Not Found";
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company not found.',
+            ], 404);
         }
+
+        $user = $request->user();
+        if ($user->role !== 'admin' && $company->owner_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. You can only update your own company profile.',
+            ], 403);
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:companies,email,' . $id,
+            'website' => 'nullable|string',
+            'description' => 'sometimes|string',
+            'location' => 'sometimes|string',
+            'logo' => 'nullable|string',
+            'cover' => 'nullable|string',
+            'industry' => 'nullable|string',
+            'size' => 'nullable|string',
+            'about' => 'nullable|string',
+            'founded' => 'nullable|string',
+        ]);
+
+        $company->update($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Company updated successfully.',
+            'company' => $company,
+            'data' => $company,
+        ], 200);
     }
 
-    //Delete Company
-    public function destroy( $id)
+    /**
+     * Delete Company (Owner or Admin only).
+     */
+    public function destroy(Request $request, $id)
     {
-        $decompany = Company::find($id);
-        if(!$decompany){
-            return "Company Not Found";
+        $company = Company::find($id);
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company not found.',
+            ], 404);
         }
-        $decompany->delete();
+
+        $user = $request->user();
+        if ($user->role !== 'admin' && $company->owner_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. You can only delete your own company.',
+            ], 403);
+        }
+
+        // Unset company_id on user
+        if ($user->company_id === $company->id) {
+            $user->company_id = null;
+            $user->save();
+        }
+
+        $company->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Company deleted successfully.',
+        ], 200);
     }
-
-
-    //Company Profile
 }
