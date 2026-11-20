@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->belongsTo(Company::class, 'company_id');
     }
 
+    public function companies()
+    {
+        return $this->hasMany(Company::class, 'owner_id');
+    }
+
     public function applications()
     {
         return $this->hasMany(Application::class, 'user_id');

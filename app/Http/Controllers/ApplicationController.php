@@ -115,13 +115,24 @@ class ApplicationController extends Controller
     {
         $user = $request->user();
 
-        // Jobs belonging to employer's company or created by this employer
-        $jobsQuery = JobListings::query();
-        if ($user->company_id) {
-            $jobsQuery->where('company_id', $user->company_id);
-        } else {
-            $jobsQuery->where('created_by', $user->id);
+        // All companies owned by this employer
+        $ownedCompanies = Company::where('owner_id', $user->id)
+            ->withCount('jobs')
+            ->latest()
+            ->get();
+        $companyIds = $ownedCompanies->pluck('id')->toArray();
+        if ($user->company_id && !in_array($user->company_id, $companyIds)) {
+            $companyIds[] = $user->company_id;
         }
+
+        // Jobs across all companies owned by this employer or created by this employer
+        $jobsQuery = JobListings::with('company')
+            ->where(function ($q) use ($companyIds, $user) {
+                if (!empty($companyIds)) {
+                    $q->whereIn('company_id', $companyIds);
+                }
+                $q->orWhere('created_by', $user->id);
+            });
 
         $jobs = $jobsQuery->withCount('applications')->latest()->get();
         $jobIds = $jobs->pluck('id');
@@ -148,6 +159,7 @@ class ApplicationController extends Controller
                 'company_id' => $user->company_id,
             ],
             'stats' => $stats,
+            'companies' => $ownedCompanies,
             'jobs' => $jobs,
             'applications' => $applications,
         ], 200);
@@ -169,8 +181,13 @@ class ApplicationController extends Controller
             ], 404);
         }
 
-        // Verify that this employer owns the job listing
-        if ($user->company_id && $application->job->company_id !== $user->company_id && $application->job->created_by !== $user->id) {
+        // Verify that this employer owns the company or created the job listing
+        $companyIds = Company::where('owner_id', $user->id)->pluck('id')->toArray();
+        $isOwner = in_array($application->job->company_id, $companyIds)
+            || $application->job->created_by === $user->id
+            || $user->role === 'admin';
+
+        if (!$isOwner) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. You can only update applications for your own company jobs.'

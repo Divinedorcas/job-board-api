@@ -48,8 +48,9 @@ Route::middleware(['auth:sanctum', 'employer'])->group(function () {
     Route::put('/jobs/{id}', [JobController::class, 'updateJob']);
     Route::delete('/jobs/{id}', [JobController::class, 'deleteJob']);
 
-    // Company Management
+    // Company Management (An employer can own multiple companies)
     Route::get('/employer/company', [CompanyController::class, 'myCompany']);
+    Route::get('/employer/companies', [CompanyController::class, 'myCompanies']);
     Route::post('/createcompany', [CompanyController::class, 'createCompany']);
     Route::post('/companies', [CompanyController::class, 'createCompany']); // REST alias
     Route::put('/companies/{id}', [CompanyController::class, 'update']);

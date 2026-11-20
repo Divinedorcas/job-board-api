@@ -80,7 +80,7 @@ class CompanyController extends Controller
     }
 
     /**
-     * Get the logged-in employer's company profile.
+     * Get the logged-in employer's active/default company profile.
      */
     public function myCompany(Request $request)
     {
@@ -92,20 +92,46 @@ class CompanyController extends Controller
         }
 
         if (!$company) {
-            $company = Company::with('jobs')->where('owner_id', $user->id)->first();
+            $company = Company::with('jobs')->where('owner_id', $user->id)->latest()->first();
         }
+
+        $allCompanies = Company::where('owner_id', $user->id)
+            ->withCount('jobs')
+            ->latest()
+            ->get();
 
         if (!$company) {
             return response()->json([
                 'success' => false,
                 'message' => 'No company found for this employer.',
                 'company' => null,
+                'companies' => [],
             ], 404);
         }
 
         return response()->json([
             'success' => true,
             'company' => $company,
+            'companies' => $allCompanies,
+        ], 200);
+    }
+
+    /**
+     * Get all companies owned by the logged-in employer.
+     * An employer can own multiple companies.
+     */
+    public function myCompanies(Request $request)
+    {
+        $user = $request->user();
+        $companies = Company::where('owner_id', $user->id)
+            ->withCount('jobs')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'companies' => $companies,
+            'data' => $companies,
         ], 200);
     }
 

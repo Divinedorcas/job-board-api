@@ -23,9 +23,9 @@ class CreateCompanyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:companies,email'],
+            'email' => ['nullable', 'email', 'unique:companies,email'],
             'website' => ['nullable', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'location' => ['required', 'string', 'max:255'],
             'logo' => ['nullable'],
             'cover' => ['nullable'],
